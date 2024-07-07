@@ -69,6 +69,12 @@
         const loadGPX = (url, name, description) => {
             const gpxLayer = new L.GPX(url, {
                 async: true,
+                polyline_options: {
+                    color: 'blue',      // Couleur du trajet
+                    weight: 5,          // Épaisseur de la ligne
+                    opacity: 0.75,      // Opacité
+                    lineCap: 'round'    // Bout arrondi
+                },
                 marker_options: {
                     startIconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
                     endIconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png',
