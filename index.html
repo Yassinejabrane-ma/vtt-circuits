@@ -35,26 +35,20 @@
         .legend-item {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
         }
         .legend-color {
             width: 20px;
             height: 20px;
             margin-right: 10px;
         }
-        .color-picker {
-            margin-left: 10px;
-        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
-    <link rel="stylesheet" href="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/jszip"></script>
     <script src="https://unpkg.com/leaflet-kmz"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet-gpx/gpx.js"></script>
-    <script src="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.js"></script>
 </head>
 <body>
     <div id="map"></div>
@@ -92,18 +86,7 @@
         // Ajouter le contrôle des calques une seule fois
         const layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
 
-        // Objet de configuration des couleurs pour chaque trajet
-        const trackColors = {
-            'Trail 1': '#FF5733',
-            'Circuit Test 2': '#33FF57',
-            'Circuit Test 4': '#3357FF',
-            'Circuit Test 5': '#FF33F1',
-            'Circuit Test 6': '#33FFF6',
-            'Circuit Test 7': '#F6FF33',
-            'Circuit Test 8': '#FF8333'
-        };
-
-        // Fonction pour générer une couleur aléatoire (utilisée si aucune couleur n'est définie)
+        // Fonction pour générer une couleur aléatoire
         const getRandomColor = () => {
             const letters = '0123456789ABCDEF';
             let color = '#';
@@ -118,81 +101,61 @@
         const addToLegend = (name, color) => {
             const item = document.createElement('div');
             item.className = 'legend-item';
-            const colorBox = document.createElement('div');
-            colorBox.className = 'legend-color';
-            colorBox.style.backgroundColor = color;
-            const colorPicker = document.createElement('input');
-            colorPicker.type = 'color';
-            colorPicker.value = color;
-            colorPicker.className = 'color-picker';
-            colorPicker.addEventListener('change', (e) => {
-                const newColor = e.target.value;
-                colorBox.style.backgroundColor = newColor;
-                if (overlayLayers[name]) {
-                    overlayLayers[name].setStyle({ color: newColor });
-                }
-            });
-            item.appendChild(colorBox);
-            item.appendChild(document.createTextNode(name));
-            item.appendChild(colorPicker);
+            item.innerHTML = `<div class="legend-color" style="background: ${color};"></div>${name}`;
             legend.appendChild(item);
         };
 
+        const loadKMZ = (url, name, description) => {
+            fetch(url)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const kmzParser = new L.KMZParser();
+                    kmzParser.on('loaded', (e) => {
+                        const layer = e.layer;
+                        layer.addTo(map);
+                        map.fitBounds(layer.getBounds());
+
+                        layer.on('click', (event) => {
+                            L.popup()
+                                .setLatLng(event.latlng)
+                                .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
+                                .openOn(map);
+                        });
+
+                        // Ajouter le calque aux options de calque
+                        overlayLayers[name] = layer;
+                        layerControl.addOverlay(layer, name);
+                    });
+                    kmzParser.load(data);
+                })
+                .catch(error => console.error('Erreur lors du chargement du fichier KMZ:', error));
+        };
+
         const loadGPX = (url, name, description) => {
-            const color = trackColors[name] || getRandomColor();
+            const color = getRandomColor();
             const gpxLayer = new L.GPX(url, {
                 async: true,
                 polyline_options: {
-                    color: color,
-                    weight: 5,
-                    opacity: 0.75,
-                    lineCap: 'round'
+                    color: color,    // Couleur aléatoire du trajet
+                    weight: 5,       // Épaisseur de la ligne
+                    opacity: 0.75,   // Opacité
+                    lineCap: 'round' // Bout arrondi
                 },
                 marker_options: {
-                    startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-                    endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-                    shadowUrl: null
+                    startIconUrl: null, // Supprimer l'icône de départ
+                    endIconUrl: null,   // Supprimer l'icône de fin
+                    shadowUrl: null     // Supprimer l'ombre de l'icône
                 }
             }).on('loaded', function(e) {
                 map.fitBounds(e.target.getBounds());
 
                 // Ajouter un événement de clic pour afficher des informations détaillées
                 gpxLayer.on('click', (event) => {
-                    const distance = (gpxLayer.get_distance() / 1000).toFixed(2);
-                    const elevation = gpxLayer.get_elevation_gain().toFixed(0);
                     L.popup()
                         .setLatLng(event.latlng)
-                        .setContent(`<div class="info-box">
-                            <strong>${name}</strong><br>
-                            ${description}<br>
-                            Distance: ${distance} km<br>
-                            Dénivelé: ${elevation} m
-                        </div>`)
+                        .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
                         .openOn(map);
                 });
-
-                // Ajouter le profil d'élévation
-                var el = L.control.elevation({
-                    position: "bottomright",
-                    theme: "steelblue-theme",
-                    useHeightIndicator: true,
-                    width: 600,
-                    height: 125,
-                    margins: {
-                        top: 10,
-                        right: 20,
-                        bottom: 30,
-                        left: 50
-                    }
-                });
-                el.addTo(map);
-                var g = new L.GPX(url, {
-                    async: true
-                });
-                g.on("loaded", function(e) {
-                    el.addData(e.target);
-                });
-                g.addTo(map);
             }).addTo(map);
 
             // Ajouter le calque aux options de calque
@@ -203,14 +166,15 @@
             addToLegend(name, color);
         };
 
-        // Charger les trajets GPX
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/5.gpx', 'Trail 1', 'J 1 Lalla Aziz J2 Ait Had Youssef J3 Crossing Toushka J4 Bab Tizi NTest J5 Ait Yehiya ');
+        // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/5.gpx', 'Trail 1', 'J 1 Lalla Aziz J2 Ait Had Youssef J3 Crossing Toushka J4 Bab Tizi N Test J5 Ait Yehiya ');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/6.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/8.gpx', 'Circuit Test 4', 'Description du Circuit Test 3');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/9.gpx', 'Circuit Test 5', 'Description du Circuit Test 3');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/10.gpx', 'Circuit Test 6', 'Description du Circuit Test 3');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/11.gpx', 'Circuit Test 7', 'Description du Circuit Test 3');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/12.gpx', 'Circuit Test 8', 'Description du Circuit Test 3');
+        // Ajoute plus de fichiers KMZ ou GPX si nécessaire
 
         // Ajouter les contrôles de dessin
         const drawnItems = new L.FeatureGroup();
