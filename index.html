@@ -142,9 +142,9 @@
                     lineCap: 'round' // Bout arrondi
                 },
                 marker_options: {
-                    startIconUrl: null, // Supprimer l'icône de départ
-                    endIconUrl: null,   // Supprimer l'icône de fin
-                    shadowUrl: null     // Supprimer l'ombre de l'icône
+                    startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    shadowUrl: null
                 }
             }).on('loaded', function(e) {
                 map.fitBounds(e.target.getBounds());
