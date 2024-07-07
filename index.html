@@ -21,7 +21,28 @@
             border-radius: 5px;
             width: 200px;
         }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            line-height: 1.5;
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+            z-index: 1000;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/jszip"></script>
@@ -31,6 +52,7 @@
 </head>
 <body>
     <div id="map"></div>
+    <div class="legend" id="legend"></div>
     <script>
         // Initialisation de la carte
         const map = L.map('map').setView([31.63, -7.99], 10);
@@ -62,6 +84,15 @@
                 color += letters[Math.floor(Math.random() * 16)];
             }
             return color;
+        };
+
+        const legend = document.getElementById('legend');
+
+        const addToLegend = (name, color) => {
+            const item = document.createElement('div');
+            item.className = 'legend-item';
+            item.innerHTML = `<div class="legend-color" style="background: ${color};"></div>${name}`;
+            legend.appendChild(item);
         };
 
         const loadKMZ = (url, name, description) => {
@@ -96,7 +127,7 @@
                 async: true,
                 polyline_options: {
                     color: color,    // Couleur aléatoire du trajet
-                    weight: 3,       // Épaisseur de la ligne
+                    weight: 5,       // Épaisseur de la ligne
                     opacity: 0.75,   // Opacité
                     lineCap: 'round' // Bout arrondi
                 },
@@ -122,13 +153,15 @@
             // Ajouter le calque aux options de calque
             overlayLayers[name] = gpxLayer;
             L.control.layers(baseLayers, overlayLayers).addTo(map);
+
+            // Ajouter à la légende
+            addToLegend(name, color);
         };
 
         // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/1Aittamlil.gpx', 'MTB ATlas 1', 'Circuit de 3 jours, piste, auberge Lalla Aziza');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j7.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/track1.gpx', 'J3 Crossing Toushka', 'Description du Circuit J3 Crossing Toushka');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j8.gpx', ' J4 Bab Tizi n Test', 'Description du Circuit  J4 Bab Tizi n Test');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j5.gpx', 'Circuit Test 1', 'après 10 km de route nous entrons dans une rambla de sable et de pierre qui finit par monter un col de montagne impraticable, montée d’environ 5 km de pierre qui nous a fait arriver au...');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j8.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j7.gpx', 'Circuit Test 3', 'Description du Circuit Test 3');
         // Ajoute plus de fichiers KMZ ou GPX si nécessaire
 
         // Ajouter les contrôles de dessin
