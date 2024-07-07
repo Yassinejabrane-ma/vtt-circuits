@@ -87,15 +87,44 @@
         const layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
 
         // Fonction pour générer une couleur aléatoire
-        const getRandomColor = () => {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        };
-
+        const trackColors = {
+    'Trail 1': '#FF5733',
+    'Circuit Test 2': '#33FF57',
+    'Circuit Test 4': '#3357FF',
+    // Ajoutez d'autres trajets et leurs couleurs ici
+};
+      const addToLegend = (name, color) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    const colorPicker = document.createElement('input');
+    colorPicker.type = 'color';
+    colorPicker.value = color;
+    colorPicker.addEventListener('change', (e) => {
+        const newColor = e.target.value;
+        overlayLayers[name].setStyle({ color: newColor });
+    });
+        const loadGPX = (url, name, description) => {
+    // ... code existant ...
+    marker_options: {
+        startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: null
+    }
+    // ... reste du code ...
+};
+        const loadGPX = (url, name, description) => {
+    // ... code existant ...
+    marker_options: {
+        startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: null
+    }
+    // ... reste du code ...
+};
+    item.innerHTML = `<div class="legend-color" style="background: ${color};"></div>${name}`;
+    item.appendChild(colorPicker);
+    legend.appendChild(item);
+};
         const legend = document.getElementById('legend');
 
         const addToLegend = (name, color) => {
