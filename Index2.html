@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Interactive VTT - Haut Atlas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .info-box {
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            width: 200px;
+        }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            line-height: 1.5;
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+            z-index: 1000;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/jszip"></script>
+    <script src="https://unpkg.com/leaflet-kmz"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/leaflet-gpx/gpx.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="legend" id="legend"></div>
+    <script>
+        // Initialisation de la carte
+        const map = L.map('map').setView([31.63, -7.99], 10);
+
+        // Ajouter le fond de carte OpenStreetMap
+        const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Ajouter le fond de carte satellite de Mapbox
+        const satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoieWFzc2luZWphYnJhbmVtYSIsImEiOiJjbHliYnFmdjgxNWh3Mmtxd2Zsdmtsdzh2In0.2vTEd1ZNnrJ9g1U2EKN5CQ', {
+            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>',
+            maxZoom: 18
+        });
+
+        // Ajouter le fond de carte outdoors de Mapbox
+        const outdoorsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{z}/{x}/{y}?access_token=sk.eyJ1IjoieWFzc2luZWphYnJhbmVtYSIsImEiOiJjbHliZjA3M3gwMmZmMmpwbHpzYzYwcjd2In0.YfvRwqE15lPNu5c8TQKK9Q', {
+            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>',
+            maxZoom: 18
+        });
+
+        // Initialiser les calques
+        const baseLayers = {
+            "Carte": baseLayer,
+            "Satellite": satelliteLayer,
+            "Outdoors": outdoorsLayer
+        };
+
+        const overlayLayers = {};
+
+        // Ajouter le contrôle des calques une seule fois
+        const layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
+
+        // Fonction pour générer une couleur aléatoire
+        const trackColors = {
+    'Trail 1': '#FF5733',
+    'Circuit Test 2': '#33FF57',
+    'Circuit Test 4': '#3357FF',
+    // Ajoutez d'autres trajets et leurs couleurs ici
+};
+      const addToLegend = (name, color) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    const colorPicker = document.createElement('input');
+    colorPicker.type = 'color';
+    colorPicker.value = color;
+    colorPicker.addEventListener('change', (e) => {
+        const newColor = e.target.value;
+        overlayLayers[name].setStyle({ color: newColor });
+    });
+        const loadGPX = (url, name, description) => {
+    // ... code existant ...
+    marker_options: {
+        startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: null
+    }
+    // ... reste du code ...
+};
+        const loadGPX = (url, name, description) => {
+    // ... code existant ...
+    marker_options: {
+        startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        endIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: null
+    }
+    // ... reste du code ...
+};
+    item.innerHTML = `<div class="legend-color" style="background: ${color};"></div>${name}`;
+    item.appendChild(colorPicker);
+    legend.appendChild(item);
+};
+        const legend = document.getElementById('legend');
+
+        const addToLegend = (name, color) => {
+            const item = document.createElement('div');
+            item.className = 'legend-item';
+            item.innerHTML = `<div class="legend-color" style="background: ${color};"></div>${name}`;
+            legend.appendChild(item);
+        };
+
+        const loadKMZ = (url, name, description) => {
+            fetch(url)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const kmzParser = new L.KMZParser();
+                    kmzParser.on('loaded', (e) => {
+                        const layer = e.layer;
+                        layer.addTo(map);
+                        map.fitBounds(layer.getBounds());
+
+                        layer.on('click', (event) => {
+                            L.popup()
+                                .setLatLng(event.latlng)
+                                .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
+                                .openOn(map);
+                        });
+
+                        // Ajouter le calque aux options de calque
+                        overlayLayers[name] = layer;
+                        layerControl.addOverlay(layer, name);
+                    });
+                    kmzParser.load(data);
+                })
+                .catch(error => console.error('Erreur lors du chargement du fichier KMZ:', error));
+        };
+
+        const loadGPX = (url, name, description) => {
+            const color = getRandomColor();
+            const gpxLayer = new L.GPX(url, {
+                async: true,
+                polyline_options: {
+                    color: color,    // Couleur aléatoire du trajet
+                    weight: 5,       // Épaisseur de la ligne
+                    opacity: 0.75,   // Opacité
+                    lineCap: 'round' // Bout arrondi
+                },
+                marker_options: {
+                    startIconUrl: null, // Supprimer l'icône de départ
+                    endIconUrl: null,   // Supprimer l'icône de fin
+                    shadowUrl: null     // Supprimer l'ombre de l'icône
+                }
+            }).on('loaded', function(e) {
+                map.fitBounds(e.target.getBounds());
+
+                // Ajouter un événement de clic pour afficher des informations détaillées
+                gpxLayer.on('click', (event) => {
+                    L.popup()
+                        .setLatLng(event.latlng)
+                        .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
+                        .openOn(map);
+                });
+            }).addTo(map);
+
+            // Ajouter le calque aux options de calque
+            overlayLayers[name] = gpxLayer;
+            layerControl.addOverlay(gpxLayer, name);
+
+            // Ajouter à la légende
+            addToLegend(name, color);
+        };
+
+        // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/5.gpx', 'Trail 1', 'J 1 Lalla Aziz J2 Ait Had Youssef J3 Crossing Toushka J4 Bab Tizi N Test J5 Ait Yehiya ');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/6.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/8.gpx', 'Circuit Test 4', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/9.gpx', 'Circuit Test 5', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/10.gpx', 'Circuit Test 6', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/11.gpx', 'Circuit Test 7', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/12.gpx', 'Circuit Test 8', 'Description du Circuit Test 3');
+        // Ajoute plus de fichiers KMZ ou GPX si nécessaire
+
+        // Ajouter les contrôles de dessin
+        const drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        const drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, (event) => {
+            const layer = event.layer;
+            drawnItems.addLayer(layer);
+        });
+
+        // Ajouter les contrôles de zoom
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
+    </script>
+</body>
+</html>
