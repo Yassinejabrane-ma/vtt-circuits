@@ -41,7 +41,18 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        // Ajouter le fond de carte satellite de Mapbox
+        const satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}?access_token=YOUR_MAPBOX_ACCESS_TOKEN', {
+            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>',
+            maxZoom: 18
+        });
+
         // Initialiser les calques
+        const baseLayers = {
+            "Carte": baseLayer,
+            "Satellite": satelliteLayer
+        };
+
         const overlayLayers = {};
 
         const loadKMZ = (url, name, description) => {
@@ -54,12 +65,16 @@
                         layer.addTo(map);
                         map.fitBounds(layer.getBounds());
 
-                        const marker = L.marker(layer.getBounds().getCenter()).addTo(map);
-                        marker.bindPopup(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`);
+                        layer.on('click', () => {
+                            L.popup()
+                                .setLatLng(layer.getBounds().getCenter())
+                                .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
+                                .openOn(map);
+                        });
 
                         // Ajouter le calque aux options de calque
                         overlayLayers[name] = layer;
-                        L.control.layers(null, overlayLayers).addTo(map);
+                        L.control.layers(baseLayers, overlayLayers).addTo(map);
                     });
                     kmzParser.load(data);
                 })
@@ -84,11 +99,19 @@
                 map.fitBounds(e.target.getBounds());
                 const marker = L.marker(e.target.getBounds().getCenter()).addTo(map);
                 marker.bindPopup(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`);
+
+                // Ajouter un événement de clic pour afficher des informations détaillées
+                gpxLayer.on('click', () => {
+                    L.popup()
+                        .setLatLng(e.target.getBounds().getCenter())
+                        .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
+                        .openOn(map);
+                });
             }).addTo(map);
 
             // Ajouter le calque aux options de calque
             overlayLayers[name] = gpxLayer;
-            L.control.layers(null, overlayLayers).addTo(map);
+            L.control.layers(baseLayers, overlayLayers).addTo(map);
         };
 
         // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
