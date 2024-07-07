@@ -68,13 +68,23 @@
             maxZoom: 18
         });
 
+        // Ajouter le fond de carte outdoors de Mapbox
+        const outdoorsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{z}/{x}/{y}?access_token=YOUR_MAPBOX_ACCESS_TOKEN', {
+            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>',
+            maxZoom: 18
+        });
+
         // Initialiser les calques
         const baseLayers = {
             "Carte": baseLayer,
-            "Satellite": satelliteLayer
+            "Satellite": satelliteLayer,
+            "Outdoors": outdoorsLayer
         };
 
         const overlayLayers = {};
+
+        // Ajouter le contrôle des calques une seule fois
+        const layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
 
         // Fonction pour générer une couleur aléatoire
         const getRandomColor = () => {
@@ -114,7 +124,7 @@
 
                         // Ajouter le calque aux options de calque
                         overlayLayers[name] = layer;
-                        L.control.layers(baseLayers, overlayLayers).addTo(map);
+                        layerControl.addOverlay(layer, name);
                     });
                     kmzParser.load(data);
                 })
@@ -132,14 +142,12 @@
                     lineCap: 'round' // Bout arrondi
                 },
                 marker_options: {
-                    startIconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
-                    endIconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png',
-                    shadowUrl: 'https://leafletjs.com/examples/custom-icons/leaf-shadow.png'
+                    startIconUrl: null, // Supprimer l'icône de départ
+                    endIconUrl: null,   // Supprimer l'icône de fin
+                    shadowUrl: null     // Supprimer l'ombre de l'icône
                 }
             }).on('loaded', function(e) {
                 map.fitBounds(e.target.getBounds());
-                const marker = L.marker(e.target.getBounds().getCenter()).addTo(map);
-                marker.bindPopup(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`);
 
                 // Ajouter un événement de clic pour afficher des informations détaillées
                 gpxLayer.on('click', (event) => {
@@ -152,17 +160,16 @@
 
             // Ajouter le calque aux options de calque
             overlayLayers[name] = gpxLayer;
-            L.control.layers(baseLayers, overlayLayers).addTo(map);
+            layerControl.addOverlay(gpxLayer, name);
 
             // Ajouter à la légende
             addToLegend(name, color);
         };
 
         // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j5.gpx', 'Circuit Test 1', 'après 10 km de route nous entrons dans une rambla de sable et de pierre qui finit par monter un col de montagne impraticable, montée d’environ 5 km de pierre qui nous a fait arriver au...');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j8.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/j7.gpx', 'Circuit Test 3', 'Description du Circuit Test 3');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/1Aittamlil.gpx', 'Circuit Test 3', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/J5.gpx', 'Circuit Test 1', 'Description du Circuit Test 1');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/J8.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/J7.gpx', 'Circuit Test 3', 'Description du Circuit Test 3');
         // Ajoute plus de fichiers KMZ ou GPX si nécessaire
 
         // Ajouter les contrôles de dessin
