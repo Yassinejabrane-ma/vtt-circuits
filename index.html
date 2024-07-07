@@ -131,7 +131,7 @@
                 .catch(error => console.error('Erreur lors du chargement du fichier KMZ:', error));
         };
 
-        const loadGPX = (url, name, description) => {
+        const loadGPX = (url, color, name, description) => {
             const color = getRandomColor();
             const gpxLayer = new L.GPX(url, {
                 async: true,
@@ -168,12 +168,12 @@
 
         // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/5.gpx', 'Trail 1', 'J 1 Lalla Aziz J2 Ait Had Youssef J3 Crossing Toushka J4 Bab Tizi N Test J5 Ait Yehiya ');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/6.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/8.gpx', 'Circuit Test 4', 'Description du Circuit Test 3');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/9.gpx', 'Circuit Test 5', 'Description du Circuit Test 3');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/10.gpx', 'Circuit Test 6', 'Description du Circuit Test 3');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/11.gpx', 'Circuit Test 7', 'Description du Circuit Test 3');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/12.gpx', 'Circuit Test 8', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/6.gpx',  '#00BB9E','N1011 goulmina gas', 'après 10 km de route nous entrons dans une rambla de sable et de pierre qui finit par monter un col de montagne impraticable, montée d’environ 5 km de pierre qui nous a fait arriver au...';
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/8.gpx', 'blue','Circuit Test 4', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/9.gpx', 'purple','Circuit Test 5', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/10.gpx', 'red','Circuit Test 6', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/11.gpx', '#00BB4E','Circuit Test 7', 'Description du Circuit Test 3');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/12.gpx', '#00BB2E','Circuit Test 8', 'Description du Circuit Test 3');
         // Ajoute plus de fichiers KMZ ou GPX si nécessaire
 
         // Ajouter les contrôles de dessin
