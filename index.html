@@ -42,7 +42,7 @@
         }).addTo(map);
 
         // Ajouter le fond de carte satellite de Mapbox
-        const satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoieWFzc2luZWphYnJhbmVtYSIsImEiOiJjbHliYnFmdjgxNWh3Mmtxd2Zsdmtsdzh2In0.2vTEd1ZNnrJ9g1U2EKN5CQ', {
+        const satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}?access_token=YOUR_MAPBOX_ACCESS_TOKEN', {
             attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>',
             maxZoom: 18
         });
@@ -55,6 +55,16 @@
 
         const overlayLayers = {};
 
+        // Fonction pour générer une couleur aléatoire
+        const getRandomColor = () => {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        };
+
         const loadKMZ = (url, name, description) => {
             fetch(url)
                 .then(response => response.arrayBuffer())
@@ -65,9 +75,9 @@
                         layer.addTo(map);
                         map.fitBounds(layer.getBounds());
 
-                        layer.on('click', () => {
+                        layer.on('click', (event) => {
                             L.popup()
-                                .setLatLng(layer.getBounds().getCenter())
+                                .setLatLng(event.latlng)
                                 .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
                                 .openOn(map);
                         });
@@ -82,13 +92,14 @@
         };
 
         const loadGPX = (url, name, description) => {
+            const color = getRandomColor();
             const gpxLayer = new L.GPX(url, {
                 async: true,
                 polyline_options: {
-                    color: 'blue',      // Couleur du trajet
-                    weight: 5,          // Épaisseur de la ligne
-                    opacity: 0.75,      // Opacité
-                    lineCap: 'round'    // Bout arrondi
+                    color: color,    // Couleur aléatoire du trajet
+                    weight: 5,       // Épaisseur de la ligne
+                    opacity: 0.75,   // Opacité
+                    lineCap: 'round' // Bout arrondi
                 },
                 marker_options: {
                     startIconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
@@ -101,9 +112,9 @@
                 marker.bindPopup(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`);
 
                 // Ajouter un événement de clic pour afficher des informations détaillées
-                gpxLayer.on('click', () => {
+                gpxLayer.on('click', (event) => {
                     L.popup()
-                        .setLatLng(e.target.getBounds().getCenter())
+                        .setLatLng(event.latlng)
                         .setContent(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`)
                         .openOn(map);
                 });
@@ -115,8 +126,8 @@
         };
 
         // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/J7.gpx', 'Circuit Test', 'Description du Circuit Test');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/track1.gpx', 'Circuit Test', 'Description du Circuit Test');
+        loadGPX('https://raw.githubusercontent.com/<ton-nom-utilisateur>/<nom-du-dépôt>/main/files/example.gpx', 'Circuit Test 1', 'Description du Circuit Test 1');
+        loadGPX('https://raw.githubusercontent.com/<ton-nom-utilisateur>/<nom-du-dépôt>/main/files/example2.gpx', 'Circuit Test 2', 'Description du Circuit Test 2');
         // Ajoute plus de fichiers KMZ ou GPX si nécessaire
 
         // Ajouter les contrôles de dessin
