@@ -87,12 +87,14 @@
         const layerControl = L.control.layers(baseLayers, overlayLayers).addTo(map);
 
         // Fonction pour générer une couleur aléatoire
-        const trackColors = {
-    'Trail 1': '#FF5733',
-    'Circuit Test 2': '#33FF57',
-    'Circuit Test 4': '#3357FF',
-    // Ajoutez d'autres trajets et leurs couleurs ici
-};
+       const getRandomColor = () => {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        };
       const addToLegend = (name, color) => {
     const item = document.createElement('div');
     item.className = 'legend-item';
