@@ -131,21 +131,43 @@
                 .catch(error => console.error('Erreur lors du chargement du fichier KMZ:', error));
         };
 
-        const loadGPX = (url, name, description) => {
-            const color = getRandomColor();
-            const gpxLayer = new L.GPX(url, {
-                async: true,
-                polyline_options: {
-                    color: color,    // Couleur aléatoire du trajet
-                    weight: 5,       // Épaisseur de la ligne
-                    opacity: 0.75,   // Opacité
-                    lineCap: 'round' // Bout arrondi
-                },
-                marker_options: {
-                    startIconUrl: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700" width="36px" height="36px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>',
-                    endIconUrl: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700" width="36px" height="36px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><circle cx="12" cy="9" r="3" fill="black"/></svg>',
-                    shadowUrl: null
-                }
+      // Définir les icônes personnalisées VTT
+const startIcon = L.icon({
+    iconUrl: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36px" height="36px"><circle cx="12" cy="12" r="11" fill="%23FFD700"/><path d="M16 5l-3 9L9 8.5 6 14H4c0 3.9 3.1 7 7 7s7-3.1 7-7h-2l-3-6 3-3zM6 18.5c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5zm12 0c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z" fill="%23000000"/></svg>',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36]
+});
+
+const endIcon = L.icon({
+    iconUrl: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36px" height="36px"><circle cx="12" cy="12" r="11" fill="%23FFD700"/><path d="M16 5l-3 9L9 8.5 6 14H4c0 3.9 3.1 7 7 7s7-3.1 7-7h-2l-3-6 3-3zM6 18.5c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5zm12 0c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z" fill="%23000000"/><circle cx="12" cy="12" r="3" fill="%23FF0000"/></svg>',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36]
+});
+
+// Modifier la fonction loadGPX pour utiliser ces nouvelles icônes
+const loadGPX = (url, name, description) => {
+    const color = trackColors[name] || getRandomColor();
+    const gpxLayer = new L.GPX(url, {
+        async: true,
+        polyline_options: {
+            color: color,
+            weight: 5,
+            opacity: 0.75,
+            lineCap: 'round'
+        },
+        marker_options: {
+            startIconUrl: null,
+            endIconUrl: null,
+            shadowUrl: null
+        },
+        pointToLayer: function (feature, latlng) {
+            if (feature.properties.sym === 'Start') {
+                return L.marker(latlng, {icon: startIcon});
+            } else if (feature.properties.sym === 'End') {
+                return L.marker(latlng, {icon: endIcon});
+            }
             }).on('loaded', function(e) {
                 map.fitBounds(e.target.getBounds());
 
@@ -167,7 +189,7 @@
         };
 
         // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/5.gpx', 'Trail 1', 'J 1 Lalla Aziz J2 Ait Had Youssef J3 Crossing Toushka J4 Bab Tizi N Test J5 Ait Yehiya ');
+        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/5.gpx', 'Trail 1', 'Sortie à vélo - Intermédiaire. Bonne condition physique nécessaire. Surfaces pour la plupart pavées. Tous niveaux.');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/6.gpx', 'N1011 goulmina gas', 'après 10 km de route nous entrons dans une rambla de sable et de pierre qui finit par monter un col de montagne impraticable, montée d environ 5 km de pierre qui nous a fait arriver au...');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/8.gpx', 'Circuit Test 4', 'Description du Circuit Test 3');
         loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/9.gpx', 'Circuit Test 5', 'Description du Circuit Test 4');
