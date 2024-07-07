@@ -28,6 +28,7 @@
     <script src="https://unpkg.com/jszip"></script>
     <script src="https://unpkg.com/leaflet-kmz"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/leaflet-gpx/gpx.js"></script>
 </head>
 <body>
     <div id="map"></div>
@@ -78,11 +79,14 @@
                 const marker = L.marker(e.target.getBounds().getCenter()).addTo(map);
                 marker.bindPopup(`<div class="info-box"><strong>${name}</strong><br>${description}</div>`);
             }).addTo(map);
+
+            // Ajouter le calque aux options de calque
+            overlayLayers[name] = gpxLayer;
+            L.control.layers(null, overlayLayers).addTo(map);
         };
 
         // Remplace les URL ci-dessous par celles de tes fichiers hébergés sur GitHub Pages
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/J7.gpx', 'Description du Circuit 3');
-        loadGPX('https://raw.githubusercontent.com/Yassinejabrane-ma/vtt-circuits/main/track1.gpx', 'Circuit 4', 'Description du Circuit 4');
+        loadGPX('https://raw.githubusercontent.com/<ton-nom-utilisateur>/<nom-du-dépôt>/main/files/example.gpx', 'Circuit Test', 'Description du Circuit Test');
         // Ajoute plus de fichiers KMZ ou GPX si nécessaire
 
         // Ajouter les contrôles de dessin
